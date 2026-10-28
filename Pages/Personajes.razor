@@ -1,0 +1,80 @@
+@page "/personajes"
+@using RickAndMortyApp.Models
+@inject HttpClient Http
+
+<PageTitle>Personajes</PageTitle>
+
+<h1>Personajes de Rick and Morty</h1>
+
+@if (respuesta == null)
+{
+    <p><em>Cargando personajes...</em></p>
+}
+else
+{
+    <p>Total de personajes: @respuesta.Info.Count | Página @paginaActual de @respuesta.Info.Pages</p>
+
+    <div class="mb-3">
+        <button class="btn btn-primary" @onclick="PaginaAnterior" disabled="@(respuesta.Info.Prev == null)">Anterior</button>
+        <button class="btn btn-primary" @onclick="PaginaSiguiente" disabled="@(respuesta.Info.Next == null)">Siguiente</button>
+    </div>
+
+    <div class="row">
+        @foreach (var personaje in respuesta.Results)
+        {
+            <div class="col-sm-6 col-md-4 col-lg-3 mb-4">
+                <div class="card h-100">
+                    <img src="@personaje.Image" class="card-img-top" alt="@personaje.Name" />
+                    <div class="card-body">
+                        <h5 class="card-title">@personaje.Name</h5>
+                        <p class="card-text">
+                            <span class="estado @ClaseEstado(personaje.Status)"></span>
+                            @personaje.Status - @personaje.Species
+                        </p>
+                        <p class="card-text mb-1"><small class="text-muted">Género:</small> @personaje.Gender</p>
+                        <p class="card-text mb-1"><small class="text-muted">Origen:</small> @personaje.Origin.Name</p>
+                        <p class="card-text"><small class="text-muted">Última ubicación:</small> @personaje.Location.Name</p>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    private RespuestaApi? respuesta;
+    private int paginaActual = 1;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarPersonajes();
+    }
+
+    private async Task CargarPersonajes()
+    {
+        respuesta = null;
+        respuesta = await Http.GetFromJsonAsync<RespuestaApi>($"https://rickandmortyapi.com/api/character?page={paginaActual}");
+    }
+
+    private async Task PaginaSiguiente()
+    {
+        paginaActual++;
+        await CargarPersonajes();
+    }
+
+    private async Task PaginaAnterior()
+    {
+        paginaActual--;
+        await CargarPersonajes();
+    }
+
+    private string ClaseEstado(string estado)
+    {
+        return estado switch
+        {
+            "Alive" => "vivo",
+            "Dead" => "muerto",
+            _ => "desconocido"
+        };
+    }
+}

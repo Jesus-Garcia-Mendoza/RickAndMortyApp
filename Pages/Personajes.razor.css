@@ -1,0 +1,23 @@
+.card-img-top {
+    object-fit: cover;
+}
+
+.estado {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 4px;
+}
+
+.vivo {
+    background-color: #55cc44;
+}
+
+.muerto {
+    background-color: #d63d2e;
+}
+
+.desconocido {
+    background-color: #9e9e9e;
+}
